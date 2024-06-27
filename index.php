@@ -14,6 +14,20 @@ switch($_SERVER['REQUEST_METHOD'])
 
         break;
     case 'POST':
+        $datos = json_decode(file_get_contents('php://input'));
+        if($datos != NULL)
+        {            
+            if(Cliente::Insert($datos->nombre,$datos->apellidoPaterno,$datos->apellidoMaterno,$datos->fechaNacimiento,$datos->genero))
+            {
+                http_response_code(200);
+                echo "<br> Salio todo ok";
+
+            }else{
+                http_response_code(404);
+            }
+        }else{
+            http_response_code(405);
+        }
         break;
     default:
         break;

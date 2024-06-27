@@ -53,18 +53,55 @@ class Cliente {
         return $datos;
     }
 
+    public static function Insert($nombre, $apellidoPat, $apellidoMat, $fecha, $genero)
+{
+    // Crear una nueva conexión a la base de datos
+    $coneccionDB = new Connection();
+    
+    // Preparar la consulta para evitar inyección SQL
+    $query = "INSERT INTO clientes (Nombre, ApellidoPat, ApellidoMat, fechaNacimiento, genero) 
+              VALUES (?, ?, ?, ?, ?)";
+    // Preparar la declaración
+    if ($stmt = $coneccionDB->prepare($query)) {
+        // Vincular los parámetros
+        $stmt->bind_param("sssss", $nombre, $apellidoPat, $apellidoMat, $fecha, $genero);
+        // Ejecutar la declaración
+        $stmt->execute();
+        
+        // Verificar si se ha insertado una fila
+        if ($stmt->affected_rows > 0) {
+            // Cerrar la declaración
+            $stmt->close();
+            
+            // Cerrar la conexión
+            $coneccionDB->close();
+            
+            return TRUE;
+        }
+        // Cerrar la declaración
+        $stmt->close();
+    }
+    
+    // Cerrar la conexión
+    $coneccionDB->close();
+    
+    return FALSE;
+}
+
+    /*
     public static function Insert($nombre,$apellidoPat,$apellidoMat,$fecha,$genero)
     {
         $coneccionDB = new Connection();
-        $query = "INSERT INTO clientes (nombre , ApellidoPat , ApellidoMat , fechaNacimiento , genero ) 
-        VAlUES ('".$nombre.",".$apellidoPat.",".$apellidoMat.",".$fecha.",".$genero."');";
-        $resultado = $coneccionDB->query($query);
-        if($coneccionDB->affected_rows > 0)
+        $query = "INSERT INTO clientes (Nombre , ApellidoPat , ApellidoMat , fechaNacimiento , genero ) VALUES ('".$nombre.",".$apellidoPat.",".$apellidoMat.",".$fecha.",".$genero."');";
+        $coneccionDB->query($query);
+        if($coneccionDB->affected_rows)
         {
+            $coneccionDB->close();
             return TRUE;
         }
+        $coneccionDB->close();
         return FALSE;
-    }
+    }*/
 
     public static function Update($idCliente,$nombre,$apellidoPat,$apellidoMat,$fecha,$genero)
     {
