@@ -54,39 +54,29 @@ class Cliente {
     }
 
     public static function Insert($nombre, $apellidoPat, $apellidoMat, $fecha, $genero)
-{
-    // Crear una nueva conexión a la base de datos
-    $coneccionDB = new Connection();
-    
-    // Preparar la consulta para evitar inyección SQL
-    $query = "INSERT INTO clientes (Nombre, ApellidoPat, ApellidoMat, fechaNacimiento, genero) 
-              VALUES (?, ?, ?, ?, ?)";
-    // Preparar la declaración
-    if ($stmt = $coneccionDB->prepare($query)) {
-        // Vincular los parámetros
-        $stmt->bind_param("sssss", $nombre, $apellidoPat, $apellidoMat, $fecha, $genero);
-        // Ejecutar la declaración
-        $stmt->execute();
-        
-        // Verificar si se ha insertado una fila
-        if ($stmt->affected_rows > 0) {
-            // Cerrar la declaración
+    {
+
+        $coneccionDB = new Connection();
+        $query = "INSERT INTO clientes (Nombre, ApellidoPat, ApellidoMat, fechaNacimiento, genero) 
+                VALUES (?, ?, ?, ?, ?)";
+        // Preparar la declaración
+        if ($stmt = $coneccionDB->prepare($query)) 
+        {
+            $stmt->bind_param("sssss", $nombre, $apellidoPat, $apellidoMat, $fecha, $genero);
+            $stmt->execute();
+            
+            if ($stmt->affected_rows > 0) 
+            {
+                $stmt->close();
+                $coneccionDB->close();      
+
+                return TRUE;
+            }
             $stmt->close();
-            
-            // Cerrar la conexión
-            $coneccionDB->close();
-            
-            return TRUE;
         }
-        // Cerrar la declaración
-        $stmt->close();
+        $coneccionDB->close();        
+        return FALSE;
     }
-    
-    // Cerrar la conexión
-    $coneccionDB->close();
-    
-    return FALSE;
-}
 
     /*
     public static function Insert($nombre,$apellidoPat,$apellidoMat,$fecha,$genero)
@@ -103,9 +93,42 @@ class Cliente {
         return FALSE;
     }*/
 
+    public static function Update($idCliente, $nombre, $apellidoPat, $apellidoMat, $fecha, $genero)
+    {
+        $coneccionDB = new Connection();
+        $query = "UPDATE clientes SET 
+                Nombre = ?, 
+                ApellidoPat = ?, 
+                ApellidoMat = ?, 
+                fechaNacimiento = ?, 
+                genero = ? 
+                WHERE IdCliente = ?";
+
+        if ($declaracion = $coneccionDB->prepare($query)) 
+        {
+            // "sssssi" indica que los primeros cinco parámetros son cadenas y el último es un entero
+            $declaracion->bind_param("sssssi", $nombre, $apellidoPat, $apellidoMat, $fecha, $genero, $idCliente);
+            $declaracion->execute();
+
+            if ($declaracion->affected_rows > 0) 
+            {
+                $declaracion->close();
+                $coneccionDB->close();
+
+                return TRUE;
+            }
+            $declaracion->close();
+        }
+        $coneccionDB->close();
+
+        return FALSE;
+    }
+
+    /*
     public static function Update($idCliente,$nombre,$apellidoPat,$apellidoMat,$fecha,$genero)
     {
         $coneccionDB = new Connection();
+
         $query = "UPDATE clientes SET  
         'Nombre = ".$nombre.", 
         ApellidoPat = ".$apellidoPat.",
@@ -113,12 +136,13 @@ class Cliente {
         fechaNacimiento = ".$fecha.", genero = ".$genero."'
         WHERE IdCliente = '".$idCliente."';";
         $coneccionDB->query($query);
+
         if($coneccionDB->affected_rows)
         {
             return TRUE;
         }
         return FALSE;
-    }
+    }*/
 
 
     public static function Delete($idCliente)
